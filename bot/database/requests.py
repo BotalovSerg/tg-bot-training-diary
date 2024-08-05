@@ -34,3 +34,12 @@ async def update_profile_user(session: AsyncSession, user_id: int, data: dict) -
     )
     await session.execute(query)
     await session.commit()
+
+
+async def test_connection(session: AsyncSession):
+    """
+    Проверка соединения с СУБД
+    :param session: объект AsyncSession
+    """
+    stmt = select(1)
+    return await session.scalar(stmt)

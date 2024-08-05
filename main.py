@@ -11,19 +11,18 @@ from bot.config_data.config import settings
 from bot.middlewares import DataBaseSession, MongoDBConnect
 from bot.handlers import get_routers
 from bot.keyboards.set_menu import set_main_menu
-
+from bot.database.requests import test_connection
 
 
 async def main():
-
-    engine = create_async_engine(url=str(settings.db.url), echo=True)
+    logger = logging.getLogger(__name__)
+    engine = create_async_engine(url=str(settings.db.url), echo=settings.db.echo)
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
     mongo_client = MongoClient(settings.mongo_db.url, settings.mongo_db.port)
 
-    # async with session_maker() as session:
-    #     await test_connection(session)
-    # logger.info("Connect db")
-
+    async with session_maker() as session:
+        await test_connection(session)
+        logger.info("Connect db")
 
     bot = Bot(
         token=settings.bot.token,

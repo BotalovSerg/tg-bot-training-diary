@@ -6,8 +6,9 @@
 
 - Python
 - Aiogram, Pydantic
-- SQLAlchemy, Alembic, SQLite, MongoDB
+- SQLAlchemy, Alembic, PostgreSQL, MongoDB
+- Docker
 - ...
 
 ### Команды
-1. 
+1.

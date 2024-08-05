@@ -15,6 +15,7 @@ class MongoDBConfig(BaseModel):
 
 class DataBaseConfig(BaseModel):
     url: str = os.getenv("PGDB_URL")
+    echo: bool = False
 
 
 class BotConfig(BaseModel):
