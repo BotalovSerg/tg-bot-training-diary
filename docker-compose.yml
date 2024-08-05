@@ -4,9 +4,27 @@ services:
     container_name: "mongo_db"
     ports:
       - "27017:27017"
-
     volumes:
       - mongo_data:/data/db
+    networks:
+      - app-network
+
+  db_postgres:
+    image: postgres:15-alpine
+    container_name: "db_postgres"
+    env_file:
+      - .env
+    ports:
+      - "5430:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
 
 volumes:
   mongo_data:
+  postgres_data:
+
+networks:
+  app-network:

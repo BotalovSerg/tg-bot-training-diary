@@ -14,7 +14,7 @@ class MongoDBConfig(BaseModel):
 
 
 class DataBaseConfig(BaseModel):
-    url: str = os.getenv("SQL_DB")
+    url: str = os.getenv("PGDB_URL")
 
 
 class BotConfig(BaseModel):

@@ -16,6 +16,6 @@ class Account(Base):
     username: Mapped[str] = mapped_column(String(30), nullable=False)
     first_name: Mapped[str | None] = mapped_column(String, nullable=True)
     last_name: Mapped[str | None] = mapped_column(String, nullable=True)
-    age: Mapped[int | None] = mapped_column(nullable=True)
+    age: Mapped[str | None] = mapped_column(nullable=True)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     sum_workouts: Mapped[int] = mapped_column(default=0)
