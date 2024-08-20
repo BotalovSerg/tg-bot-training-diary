@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.lexicon import LEXICON_COMMANDS
 from bot.database import requests as rq
+from bot.keyboards.reply_kb import keyboard
 
 
 router = Router()
@@ -33,3 +34,11 @@ async def cmd_exercises(message: Message):
 @router.message(Command("add_exercise"))
 async def cmd_add_exercise(message: Message):
     await message.answer(text="This is command /add_exercise")
+
+
+@router.message(Command("weather"))
+async def cmd_weather(message: Message):
+    await message.answer(
+        text="Что бы узнать погоду, нужно поделиться геолокацией",
+        reply_markup=keyboard
+    )

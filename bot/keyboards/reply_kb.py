@@ -1,4 +1,4 @@
-from aiogram.types import KeyboardButton
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
@@ -35,3 +35,17 @@ def get_keyboard(
     return keyboard.adjust(*sizes).as_markup(
         resize_keyboard=True, input_field_placeholder=placeholder
     )
+
+kb_builder = ReplyKeyboardBuilder()
+
+geo_btn = KeyboardButton(
+    text='Отправить геолокацию',
+    request_location=True
+)
+
+kb_builder.row(geo_btn, width=1)
+
+keyboard: ReplyKeyboardMarkup = kb_builder.as_markup(
+    resize_keyboard=True,
+    one_time_keyboard=True
+)

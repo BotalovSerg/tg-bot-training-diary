@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.keyboards.inline_keyboards import get_callback_btns
 from bot.states.states import UpdateProfileSG
 from bot.database import requests as rq
+from bot.utils import get_profile_user
 
 
 router = Router()
@@ -16,16 +17,7 @@ router = Router()
 @router.message(Command("profile"))
 async def cmd_profile(message: Message, session: AsyncSession):
     user = await rq.get_user_by_id(session=session, user_id=message.from_user.id)
-    text = (
-        f"👤\t<b>Profile</b>"
-        "\n----------------------\n"
-        f"<b>Username</b>: {user.username}\n"
-        f"<b>ID</b>: {user.telegram_id or '-'}\n"
-        f"<b>First name</b>: {user.first_name or '-'}\n"
-        f"<b>Last name</b>: {user.last_name or '-'}\n"
-        f"<b>Age</b>: {user.age or '-'}\n"
-        f"<b>BIO</b>: {user.bio or '-'}\n"
-    )
+    text = get_profile_user(user)
     await message.answer(
         text=text,
         reply_markup=get_callback_btns(
@@ -78,17 +70,7 @@ async def fsm_last_name(message: Message, state: FSMContext, session: AsyncSessi
     await rq.update_profile_user(session=session, user_id=user_id, data=data)
 
     user = await rq.get_user_by_id(session=session, user_id=user_id)
-
-    text = (
-        f"👤\t<b>Profile</b>"
-        "\n----------------------\n"
-        f"<b>Username</b>: {user.username}\n"
-        f"<b>ID</b>: {user.telegram_id or '-'}\n"
-        f"<b>First name</b>: {user.first_name or '-'}\n"
-        f"<b>Last name</b>: {user.last_name or '-'}\n"
-        f"<b>Age</b>: {user.age or '-'}\n"
-        f"<b>BIO</b>: {user.bio or '-'}\n"
-    )
+    text = get_profile_user(user)
     await message.answer(
         text=text,
         reply_markup=get_callback_btns(
