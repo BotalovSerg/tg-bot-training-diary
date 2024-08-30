@@ -10,7 +10,7 @@ from pymongo.collection import Collection
 from bot.states.states import AddWorkoutSG
 from bot.keyboards.inline_keyboards import get_callback_btns, get_btns_workout
 from bot.database.mongodb import insert_workout
-
+from bot.lexicon import LEXICON_MESSAGE
 
 router = Router()
 
@@ -18,16 +18,14 @@ router = Router()
 @router.message(StateFilter(None), Command("add_workout"))
 async def cmd_add_workout(message: Message, state: FSMContext):
     await state.set_state(AddWorkoutSG.description)
-    await message.answer(
-        "Режим добавления тренировки.\nДобавь место и описание тренировки (кардио, силовая, бег, турники и т.д.)"
-    )
+    await message.answer(text=LEXICON_MESSAGE["text"]["add_workout"])
 
 
 @router.message(AddWorkoutSG.description, F.text)
 async def set_date_workout(message: Message, state: FSMContext):
     await state.update_data(description=message.text)
     await state.set_state(AddWorkoutSG.sheme)
-    await message.answer(text="Запишите план тернировки, пункты, подходы")
+    await message.answer(text=LEXICON_MESSAGE["text"]["save_training_plan"])
 
 
 @router.message(AddWorkoutSG.sheme, F.text)
@@ -84,7 +82,9 @@ async def get_all_workout_user(message: Message, collection_mongo: Collection):
 @router.callback_query(F.data.startswith("workout:"))
 async def get_workout_by_id(callback: CallbackQuery, collection_mongo: Collection):
     _id = callback.data.lstrip("workout:")
-    res = collection_mongo.find_one({"_id": ObjectId(_id)}, {"_id": 0, "time": 1, "train": 1})
+    res = collection_mongo.find_one(
+        {"_id": ObjectId(_id)}, {"_id": 0, "time": 1, "train": 1}
+    )
 
     print(res)
 
