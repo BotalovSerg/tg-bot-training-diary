@@ -5,6 +5,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import default_state
 from pymongo.collection import Collection
 
 from bot.states.states import AddWorkoutSG
@@ -15,7 +16,7 @@ from bot.lexicon import LEXICON_MESSAGE
 router = Router()
 
 
-@router.message(StateFilter(None), Command("add_workout"))
+@router.message(default_state, Command("add_workout"))
 async def cmd_add_workout(message: Message, state: FSMContext):
     await state.set_state(AddWorkoutSG.description)
     await message.answer(text=LEXICON_MESSAGE["text"]["add_workout"])
