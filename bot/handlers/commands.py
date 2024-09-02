@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ContentType
 from aiogram.filters import Command, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.fsm.context import FSMContext
@@ -9,6 +9,7 @@ from aiogram.types import ReplyKeyboardRemove
 from bot.lexicon import LEXICON_COMMANDS
 from bot.database import requests as rq
 from bot.keyboards.reply_kb import keyboard
+from bot.meteo.api_meteo import get_weather
 
 
 router = Router()
@@ -42,9 +43,20 @@ async def cmd_add_exercise(message: Message):
 @router.message(Command("weather"))
 async def cmd_weather(message: Message):
     await message.answer(
-        text="Что бы узнать погоду, нужно поделиться геолокацией", reply_markup=keyboard
+        text="Что бы узнать погоду, нужно поделиться геолокацией",
+        reply_markup=keyboard,
     )
 
+@router.message(F.content_type.in_("location"))
+async def locations(message: Message):
+    latitude = float(message.location.latitude)
+    longitude = float(message.location.longitude)
+    get_weather(latitude, longitude)
+    await message.answer(
+        text=f"Your location latitude = {message.location.latitude}\n"
+             f"longitude = {message.location.longitude}",
+        reply_markup=ReplyKeyboardRemove(),
+    )
 
 @router.message(Command("cansel"), any_state)
 async def cmd_cansel(message: Message, state: FSMContext) -> None:
