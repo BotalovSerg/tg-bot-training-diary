@@ -20,6 +20,7 @@ class DataBaseConfig(BaseModel):
 
 class BotConfig(BaseModel):
     token: str = os.getenv("BOT_TOKEN")
+    api_token_weather: str = os.getenv("API_KEY_OPEN_WEATHER")
 
 
 class Settings(BaseSettings):
