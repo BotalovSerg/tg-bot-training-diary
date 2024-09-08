@@ -47,16 +47,23 @@ async def cmd_weather(message: Message):
         reply_markup=keyboard,
     )
 
+
 @router.message(F.content_type.in_("location"))
 async def locations(message: Message):
     latitude = float(message.location.latitude)
     longitude = float(message.location.longitude)
-    get_weather(latitude, longitude)
-    await message.answer(
-        text=f"Your location latitude = {message.location.latitude}\n"
-             f"longitude = {message.location.longitude}",
-        reply_markup=ReplyKeyboardRemove(),
-    )
+    data = get_weather(latitude, longitude)
+    if data:
+        await message.answer(
+            text=f"Сейчас на улице {data['temp']} градусов.\n"
+            f"По ошушениям {data['feels_lik']}градусов.\n",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+    else:
+        await message.answer(
+            text="Сервис барахлит, давай чуток позже",
+            reply_markup=ReplyKeyboardRemove(),
+        )
 
 @router.message(Command("cansel"), any_state)
 async def cmd_cansel(message: Message, state: FSMContext) -> None:
