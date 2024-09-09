@@ -1,4 +1,5 @@
 import requests
+from fake_useragent import UserAgent
 
 from bot.config_data.config import settings
 
@@ -8,9 +9,29 @@ from bot.config_data.config import settings
 
 # &lang=ru  output in your language.
 def get_weather(lati, long):
-    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lati}&lon={long}&appid={settings.bot.api_token_weather}&units=metric"
+    ua = UserAgent()
+    headers = {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-encoding": "gzip, deflate, br, zstd",
+        "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+        "cache-control": "max-age=0",
+        "connection": "keep-alive",
+        "cookie": "signed_in=Serg",
+        "dnt": "1",
+        "host": "api.openweathermap.org",
+        "sec-ch-ua": '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "Linux",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": ua.chrome,
+    }
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lati}&lon={long}&units=metric&appid={settings.bot.api_token_weather}"
     try:
-        response = requests.get(url=url, timeout=2)
+        response = requests.get(url=url, timeout=2, headers=headers)
         data = response.json()
         return data["main"]
     except Exception as e:

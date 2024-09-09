@@ -10,7 +10,7 @@ from pymongo.collection import Collection
 
 from bot.states.states import AddWorkoutSG
 from bot.keyboards.inline_keyboards import get_callback_btns, get_btns_workout
-from bot.database.mongodb import insert_workout
+from bot.database.mongodb import insert_workout, get_all_workout
 from bot.lexicon import LEXICON_MESSAGE
 
 router = Router()
@@ -48,36 +48,19 @@ async def save_workout(
 ):
     data = await state.get_data()
     await state.clear()
-    await callback.answer("OK")
-    await callback.message.edit_text("Тренировка сохранена")
 
     insert_workout(collection_mongo, callback.from_user.id, data)
+
+    await callback.answer("OK")
+    await callback.message.edit_text("Тренировка сохранена")
 
 
 @router.message(Command("all_workout"))
 async def get_all_workout_user(message: Message, collection_mongo: Collection):
-    query = {"telegram_id": message.from_user.id}
-    all_workout = collection_mongo.find(query, {"_id": 1, "time": 1, "train": 1}).sort(
-        "time", -1
-    )
-    # for i in all_workout:
-    #     print("i", i["_id"])
-    #     dt: datetime = i["time"]
-    #     print(dt.strftime("%d:%m:%y"))  # 30:07:24
-    #     print(dt.strftime("%A, %d, %B, %Y, %H:%M"))  # Tuesday, 30, July, 2024, 19:42
-    #     print("---------------")
-    #     print(i["train"])
-    #     print("---------------")
-    #     print("---------------")
+
+    all_workout = get_all_workout(collection_mongo, message.from_user.id)
 
     await message.answer(text="all_workout", reply_markup=get_btns_workout(all_workout))
-    # {'description': 'Турники, дома', 'sheme': '1. Подтягивание 5х5\n2. Отжимание 5х10'}
-    # {'description': 'Беговая', 'sheme': '2 км\nРястяжка\nЗаминка'}
-    # {'description': 'Йога 🧘\u200d♀️', 'sheme': 'То пятое десятое'}
-
-    # i {'_id': ObjectId('66a8f63ca294b88ded429c33'),
-    #  'time': datetime.datetime(2024, 7, 30, 19, 18, 36, 683000),
-    # 'train': {'description': 'Турники, дома', 'sheme': '1. Подтягивание 5х5\n2. Отжимание 5х10'}}
 
 
 @router.callback_query(F.data.startswith("workout:"))
