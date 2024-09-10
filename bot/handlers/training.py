@@ -10,7 +10,7 @@ from pymongo.collection import Collection
 
 from bot.states.states import AddWorkoutSG
 from bot.keyboards.inline_keyboards import get_callback_btns, get_btns_workout
-from bot.database.mongodb import insert_workout, get_all_workout
+from bot.database.mongodb import insert_workout, get_all_workouts, delete_workout
 from bot.lexicon import LEXICON_MESSAGE
 
 router = Router()
@@ -58,9 +58,14 @@ async def save_workout(
 @router.message(Command("all_workout"))
 async def get_all_workout_user(message: Message, collection_mongo: Collection):
 
-    all_workout = get_all_workout(collection_mongo, message.from_user.id)
+    all_workout = get_all_workouts(collection_mongo, message.from_user.id)
 
-    await message.answer(text="all_workout", reply_markup=get_btns_workout(all_workout))
+    if all_workout:
+        await message.answer(
+            text="Список тренировок:", reply_markup=get_btns_workout(all_workout)
+        )
+    else:
+        await message.answer(text="Not found")
 
 
 @router.callback_query(F.data.startswith("workout:"))
@@ -78,5 +83,19 @@ async def get_workout_by_id(callback: CallbackQuery, collection_mongo: Collectio
 
     await callback.answer("res")
     await callback.message.edit_text(
-        text=f"Тренировкаю Дата:{time}\nОписание:{desc}\nSheme:{sheme}"
+        text=f"Тренировка: {time}\nОписание:{desc}\nSheme:{sheme}",
+        reply_markup=get_callback_btns(
+            btns={"Delete": f"delete:{_id}", "Cansel": "cancel"}
+        ),
     )
+
+
+@router.callback_query(F.data.startswith("delete:"))
+async def delete_one_workout(callback: CallbackQuery, collection_mongo: Collection):
+    _id = callback.data.lstrip("delete:")
+    res = delete_workout(collection_mongo, _id)
+    await callback.answer("del")
+    if res:
+        await callback.message.edit_text(text="Тренировка удалена")
+    else:
+        await callback.message.edit_text(text="Тренировка not found")
