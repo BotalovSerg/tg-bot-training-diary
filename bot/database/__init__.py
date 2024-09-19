@@ -1,6 +1,8 @@
 __all__ = (
     "Base",
-    "Account"
+    "Account",
+    "Scheme",
+    "CategoryScheme",
 )
 
-from .models import Base, Account
+from .models import Base, Account, Scheme, CategoryScheme

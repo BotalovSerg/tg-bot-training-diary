@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     mongo_db: MongoDBConfig = MongoDBConfig()
     bot: BotConfig = BotConfig()
     db: DataBaseConfig = DataBaseConfig()
+    admin_list: str = os.getenv("ID_LIST_ADMIN")
 
 
 settings = Settings()
