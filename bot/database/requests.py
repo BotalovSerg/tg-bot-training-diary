@@ -1,7 +1,7 @@
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.database.models import Account
+from bot.database.models import Account, CategoryScheme
 
 
 async def get_user_by_id(session: AsyncSession, user_id: int) -> Account | None:
@@ -43,3 +43,9 @@ async def test_connection(session: AsyncSession):
     """
     stmt = select(1)
     return await session.scalar(stmt)
+
+
+async def create_category(session: AsyncSession, title: str) -> None:
+    category = CategoryScheme(title=title)
+    session.add(category)
+    await session.commit()

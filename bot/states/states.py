@@ -12,3 +12,7 @@ class AddWorkoutSG(StatesGroup):
     description = State()
     sheme = State()
     check = State()
+
+
+class AddCategory(StatesGroup):
+    title = State()
