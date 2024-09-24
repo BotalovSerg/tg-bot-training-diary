@@ -9,6 +9,7 @@ from aiogram.types import ReplyKeyboardRemove
 from bot.lexicon import LEXICON_COMMANDS
 from bot.database import requests as rq
 from bot.keyboards.reply_kb import keyboard
+from bot.keyboards.inline_keyboards import get_btns_category
 from bot.meteo.api_meteo import get_weather
 
 
@@ -31,8 +32,21 @@ async def cmd_help(message: Message):
 
 
 @router.message(Command("exercises"))
-async def cmd_exercises(message: Message):
-    await message.answer(text="List Exercises")
+async def cmd_exercises(message: Message, session: AsyncSession):
+    data = await rq.get_all_category(session=session)
+    await message.answer(text="List Exercises:", reply_markup=get_btns_category(data))
+
+
+@router.callback_query(F.data.startswith("category:"))
+async def get_schemes_by_category(callback: CallbackQuery, session: AsyncSession):
+    cat_id = callback.data.lstrip("category:")
+    data_schemes = await rq.get_all_scheme_on_category(session, int(cat_id))
+    await callback.answer("ok")
+    if data_schemes:
+        print(data_schemes)
+        await callback.message.edit_text(text="Scheme")
+    else:
+        await callback.message.edit_text(text="Scheme not found")
 
 
 @router.message(Command("add_exercise"))
@@ -64,6 +78,7 @@ async def locations(message: Message):
             text="Сервис барахлит, давай чуток позже",
             reply_markup=ReplyKeyboardRemove(),
         )
+
 
 @router.message(Command("cansel"), any_state)
 async def cmd_cansel(message: Message, state: FSMContext) -> None:

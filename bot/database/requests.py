@@ -1,7 +1,7 @@
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.database.models import Account, CategoryScheme
+from bot.database.models import Account, CategoryScheme, Scheme
 
 
 async def get_user_by_id(session: AsyncSession, user_id: int) -> Account | None:
@@ -49,3 +49,17 @@ async def create_category(session: AsyncSession, title: str) -> None:
     category = CategoryScheme(title=title)
     session.add(category)
     await session.commit()
+
+
+async def get_all_category(session: AsyncSession) -> list[CategoryScheme]:
+    stmt = select(CategoryScheme).order_by(CategoryScheme.id)
+    result = await session.scalars(stmt)
+    return result.all()
+
+
+async def get_all_scheme_on_category(
+    session: AsyncSession, cat_id: int
+) -> list[Scheme]:
+    stmt = select(Scheme).where(Scheme.category_id == cat_id).order_by(Scheme.id)
+    result = await session.scalars(stmt)
+    return result.all()

@@ -1,6 +1,8 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from bot.database import CategoryScheme
+
 
 def get_callback_btns(
     *,
@@ -36,6 +38,20 @@ def get_btns_workout(data):
             InlineKeyboardButton(
                 text=f"#{num}. Дата: {time} train - {train}",
                 callback_data="workout:" + str(item["_id"]),
+            )
+        )
+
+    return keyboard.as_markup()
+
+
+def get_btns_category(data: list[CategoryScheme]):
+    keyboard = InlineKeyboardBuilder()
+
+    for num, item in enumerate(data, start=1):
+        keyboard.row(
+            InlineKeyboardButton(
+                text=f"#{num}. {item.title}",
+                callback_data="category:" + str(item.id),
             )
         )
 
