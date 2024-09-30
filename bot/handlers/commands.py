@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, ContentType
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.fsm.context import FSMContext
@@ -8,9 +8,11 @@ from aiogram.types import ReplyKeyboardRemove
 
 from bot.lexicon import LEXICON_COMMANDS
 from bot.database import requests as rq
-from bot.keyboards.reply_kb import keyboard
-from bot.keyboards.inline_keyboards import get_btns_category
-from bot.meteo.api_meteo import get_weather
+from bot.keyboards.inline_keyboards import (
+    get_btns_category,
+    get_btns_schemes,
+    get_callback_btns,
+)
 
 
 router = Router()
@@ -43,41 +45,31 @@ async def get_schemes_by_category(callback: CallbackQuery, session: AsyncSession
     data_schemes = await rq.get_all_scheme_on_category(session, int(cat_id))
     await callback.answer("ok")
     if data_schemes:
-        print(data_schemes)
-        await callback.message.edit_text(text="Scheme")
+        await callback.message.edit_text(
+            text="Список тренировочных схем:",
+            reply_markup=get_btns_schemes(data_schemes),
+        )
     else:
         await callback.message.edit_text(text="Scheme not found")
+
+
+@router.callback_query(F.data.startswith("scheme:"))
+async def show_scheme(callback: CallbackQuery, session: AsyncSession):
+    scheme_id = callback.data.lstrip("scheme:")
+    scheme = await rq.get_scheme_by_id(session, int(scheme_id))
+
+    await callback.answer("ok")
+    await callback.message.edit_text(
+        text=f"Category: {scheme.category.title}\nTitle: {scheme.title}\nContent:\n{scheme.content}",
+        reply_markup=get_callback_btns(
+            btns={"Back": f"category:{scheme.category_id}"}, sizes=(1,)
+        ),
+    )
 
 
 @router.message(Command("add_exercise"))
 async def cmd_add_exercise(message: Message):
     await message.answer(text="This is command /add_exercise")
-
-
-@router.message(Command("weather"))
-async def cmd_weather(message: Message):
-    await message.answer(
-        text="Что бы узнать погоду, нужно поделиться геолокацией",
-        reply_markup=keyboard,
-    )
-
-
-@router.message(F.content_type.in_("location"))
-async def locations(message: Message):
-    latitude = float(message.location.latitude)
-    longitude = float(message.location.longitude)
-    data = get_weather(latitude, longitude)
-    if data:
-        await message.answer(
-            text=f"Сейчас на улице {data['temp']} градусов.\n"
-            f"По ошушениям {data['feels_lik']}градусов.\n",
-            reply_markup=ReplyKeyboardRemove(),
-        )
-    else:
-        await message.answer(
-            text="Сервис барахлит, давай чуток позже",
-            reply_markup=ReplyKeyboardRemove(),
-        )
 
 
 @router.message(Command("cansel"), any_state)

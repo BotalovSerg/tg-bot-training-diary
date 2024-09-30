@@ -1,5 +1,6 @@
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from bot.database.models import Account, CategoryScheme, Scheme
 
@@ -63,3 +64,14 @@ async def get_all_scheme_on_category(
     stmt = select(Scheme).where(Scheme.category_id == cat_id).order_by(Scheme.id)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def get_scheme_by_id(session: AsyncSession, scheme_id: int) -> Scheme:
+    stmt = (
+        select(Scheme)
+        .where(Scheme.id == scheme_id)
+        .options(joinedload(Scheme.category))
+    )
+    result = await session.scalar(stmt)
+
+    return result
